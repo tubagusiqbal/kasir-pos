@@ -1,0 +1,1829 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Kasir POS</title>
+    <style>
+      :root {
+        --bg: #f3f5f9;
+        --cd: #fff;
+        --tx: #0f172a;
+        --mu: #64748b;
+        --ln: #e4e8f0;
+        --pr: #2563eb;
+        --ok: #16a34a;
+        --bad: #dc2626;
+        --sh: 0 2px 14px rgba(0, 0, 0, 0.13);
+        box-sizing: border-box;
+        padding-top: env(safe-area-inset-top, 0px);
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          --bg: #0b1120;
+          --cd: #151d31;
+          --tx: #e8edf7;
+          --mu: #8b97ad;
+          --ln: #243049;
+          --sh: 0 2px 14px rgba(0, 0, 0, 0.6);
+        }
+      }
+      :root[data-theme="dark"] {
+        --bg: #0b1120;
+        --cd: #151d31;
+        --tx: #e8edf7;
+        --mu: #8b97ad;
+        --ln: #243049;
+        --sh: 0 2px 14px rgba(0, 0, 0, 0.6);
+      }
+      * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--tx);
+        font: 15px/1.4 "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI",
+          Roboto, sans-serif;
+      }
+      #app {
+        max-width: 480px;
+        margin: 0 auto;
+        min-height: 100vh;
+      }
+      main {
+        padding: 18px 16px 100px;
+      }
+      button {
+        font: inherit;
+        color: inherit;
+        cursor: pointer;
+        border: 0;
+        background: none;
+      }
+      input,
+      select {
+        font: inherit;
+        color: var(--tx);
+        width: 100%;
+        padding: 11px 12px;
+        border: 1px solid var(--ln);
+        border-radius: 12px;
+        background: var(--cd);
+        outline: 0;
+      }
+      input:focus,
+      select:focus {
+        border-color: var(--pr);
+      }
+      .hd {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+      .hd small {
+        color: var(--mu);
+        font-size: 12px;
+      }
+      .hd h1 {
+        margin: 0;
+        font-size: 26px;
+        letter-spacing: -0.5px;
+      }
+      .ib {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        background: var(--cd);
+        box-shadow: var(--sh);
+        display: grid;
+        place-items: center;
+        font-size: 22px;
+        color: var(--pr);
+      }
+      .wallet {
+        position: relative;
+        overflow: hidden;
+        border-radius: 22px;
+        padding: 20px;
+        color: #fff;
+        background: linear-gradient(135deg, #2563eb, #1e3a8a);
+        box-shadow: 0 10px 24px rgba(37, 99, 235, 0.3);
+      }
+      .wallet:after {
+        content: "";
+        position: absolute;
+        right: -40px;
+        top: -40px;
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+      }
+      .wt {
+        font-weight: 700;
+        opacity: 0.95;
+      }
+      .wl {
+        font-size: 12px;
+        opacity: 0.75;
+        margin-top: 18px;
+      }
+      .wb {
+        font-size: 30px;
+        font-weight: 800;
+        letter-spacing: -1px;
+        margin: 2px 0 16px;
+      }
+      .wr {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+        z-index: 1;
+      }
+      .vr {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.18);
+        padding: 8px 14px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 13px;
+        color: #fff;
+      }
+      .eye {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.18);
+        display: grid;
+        place-items: center;
+        color: #fff;
+      }
+      .g3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin: 14px 0;
+      }
+      .g2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin: 14px 0;
+      }
+      .st {
+        background: var(--cd);
+        border-radius: 16px;
+        padding: 12px;
+        box-shadow: var(--sh);
+      }
+      .st small {
+        color: var(--mu);
+        font-size: 11px;
+        display: block;
+      }
+      .st b {
+        font-size: 15px;
+        display: block;
+        margin-top: 4px;
+        word-break: break-word;
+      }
+      h2 {
+        font-size: 16px;
+        margin: 22px 0 10px;
+      }
+      .card {
+        background: var(--cd);
+        border-radius: 18px;
+        box-shadow: var(--sh);
+        padding: 14px;
+      }
+      .scroll {
+        max-height: 290px;
+        overflow-y: auto;
+      }
+      .row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .sp {
+        flex: 1;
+        min-width: 0;
+      }
+      .li {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--ln);
+      }
+      .li:last-child {
+        border: 0;
+      }
+      .li b {
+        display: block;
+        font-size: 14px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .li small {
+        color: var(--mu);
+        font-size: 12px;
+      }
+      .th {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: var(--ln);
+        object-fit: cover;
+        display: grid;
+        place-items: center;
+        font-size: 20px;
+        flex: none;
+        overflow: hidden;
+      }
+      .ia {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        display: grid;
+        place-items: center;
+        background: var(--bg);
+        color: var(--mu);
+      }
+      .ia.d {
+        color: var(--bad);
+      }
+      .bt {
+        width: 100%;
+        padding: 14px;
+        border-radius: 14px;
+        background: var(--pr);
+        color: #fff;
+        font-weight: 700;
+        margin-top: 12px;
+      }
+      .bt:disabled {
+        opacity: 0.45;
+      }
+      .bt2 {
+        width: 100%;
+        padding: 13px;
+        border-radius: 14px;
+        background: var(--bg);
+        font-weight: 600;
+        margin-top: 8px;
+        border: 1px solid var(--ln);
+      }
+      .chips {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin: 8px 0;
+      }
+      .chip {
+        padding: 8px 14px;
+        border-radius: 99px;
+        border: 1px solid var(--ln);
+        background: var(--cd);
+        font-size: 13px;
+      }
+      .chip.on {
+        background: var(--pr);
+        color: #fff;
+        border-color: var(--pr);
+      }
+      .seg {
+        display: flex;
+        background: var(--bg);
+        border-radius: 12px;
+        padding: 4px;
+        gap: 4px;
+        border: 1px solid var(--ln);
+      }
+      .seg button {
+        flex: 1;
+        padding: 9px;
+        border-radius: 9px;
+        font-weight: 600;
+        font-size: 13px;
+        color: var(--mu);
+      }
+      .seg .on {
+        background: var(--cd);
+        color: var(--pr);
+        box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12);
+      }
+      label {
+        display: block;
+        font-size: 12px;
+        color: var(--mu);
+        margin: 12px 0 5px;
+      }
+      .qt {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .qt button {
+        width: 30px;
+        height: 30px;
+        border-radius: 9px;
+        background: var(--pr);
+        color: #fff;
+        display: grid;
+        place-items: center;
+      }
+      .qt button.m {
+        background: var(--bg);
+        color: var(--tx);
+        border: 1px solid var(--ln);
+      }
+      .qt span {
+        min-width: 20px;
+        text-align: center;
+        font-weight: 700;
+      }
+      .empty {
+        text-align: center;
+        padding: 30px 10px;
+        color: var(--mu);
+      }
+      .empty b {
+        display: block;
+        color: var(--tx);
+        font-size: 17px;
+        margin-bottom: 6px;
+      }
+      .steps {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 14px;
+      }
+      .steps div {
+        flex: 1;
+        font-size: 11px;
+        color: var(--mu);
+        border-top: 3px solid var(--ln);
+        padding-top: 5px;
+      }
+      .steps .on {
+        border-color: var(--pr);
+        color: var(--pr);
+        font-weight: 700;
+      }
+      .tg {
+        font-size: 11px;
+        padding: 2px 8px;
+        border-radius: 99px;
+        background: #dbeafe;
+        color: #1d4ed8;
+      }
+      .tg.r {
+        background: #fee2e2;
+        color: #b91c1c;
+      }
+      nav {
+        position: fixed;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        max-width: 480px;
+        background: var(--cd);
+        border-top: 1px solid var(--ln);
+        display: flex;
+        padding: 6px 6px calc(6px + env(safe-area-inset-bottom, 0px));
+        z-index: 5;
+      }
+      nav button {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        font-size: 11px;
+        color: var(--mu);
+        padding: 6px 0;
+      }
+      nav .on {
+        color: var(--pr);
+        font-weight: 700;
+      }
+      nav {
+        align-items: flex-end;
+      }
+      nav button {
+        font-size: 10px;
+      }
+      nav .fab {
+        flex: none;
+        width: 62px;
+        height: 62px;
+        border-radius: 50%;
+        background: var(--pr);
+        color: #fff;
+        margin: -28px 6px 2px;
+        display: grid;
+        place-items: center;
+        box-shadow: 0 6px 18px rgba(37, 99, 235, 0.5);
+        padding: 0;
+        border: 4px solid var(--cd);
+      }
+      nav .fab.on {
+        background: #1d4ed8;
+        color: #fff;
+      }
+      .ov {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 20;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+      }
+      .sheet {
+        width: 100%;
+        max-width: 480px;
+        max-height: 94vh;
+        overflow: auto;
+        background: var(--bg);
+        border-radius: 24px 24px 0 0;
+        padding: 16px;
+        animation: up 0.3s;
+      }
+      .dlg {
+        background: var(--cd);
+        width: calc(100% - 40px);
+        max-width: 340px;
+        border-radius: 20px;
+        padding: 18px;
+        margin: auto;
+      }
+      .dlg h3 {
+        margin: 0 0 10px;
+      }
+      .dlg .row button {
+        padding: 12px;
+        border-radius: 12px;
+        font-weight: 600;
+        flex: 1;
+      }
+      .paper {
+        background: #fff;
+        color: #111;
+        padding: 18px 16px 22px;
+        font: 13px/1.5 ui-monospace, Menlo, monospace;
+        transform-origin: top;
+        animation: pr 0.8s ease-out;
+        clip-path: polygon(
+          0 0,
+          100% 0,
+          100% calc(100% - 8px),
+          96% 100%,
+          92% calc(100% - 8px),
+          88% 100%,
+          84% calc(100% - 8px),
+          80% 100%,
+          76% calc(100% - 8px),
+          72% 100%,
+          68% calc(100% - 8px),
+          64% 100%,
+          60% calc(100% - 8px),
+          56% 100%,
+          52% calc(100% - 8px),
+          48% 100%,
+          44% calc(100% - 8px),
+          40% 100%,
+          36% calc(100% - 8px),
+          32% 100%,
+          28% calc(100% - 8px),
+          24% 100%,
+          20% calc(100% - 8px),
+          16% 100%,
+          12% calc(100% - 8px),
+          8% 100%,
+          4% calc(100% - 8px),
+          0 100%
+        );
+      }
+      .paper hr {
+        border: 0;
+        border-top: 1px dashed #999;
+        margin: 8px 0;
+      }
+      .paper .rw {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+      }
+      .paper .c {
+        text-align: center;
+      }
+      .paper .qt button {
+        width: 22px;
+        height: 22px;
+        border-radius: 6px;
+      }
+      .ok {
+        color: var(--ok);
+        font-weight: 700;
+        text-align: center;
+        margin: 10px 0;
+      }
+      @keyframes pr {
+        from {
+          transform: scaleY(0.05);
+          opacity: 0;
+        }
+        to {
+          transform: none;
+          opacity: 1;
+        }
+      }
+      @keyframes up {
+        from {
+          transform: translateY(40px);
+          opacity: 0;
+        }
+      }
+      .toast {
+        position: fixed;
+        left: 50%;
+        bottom: 90px;
+        transform: translateX(-50%);
+        background: #0f172a;
+        color: #fff;
+        padding: 10px 16px;
+        border-radius: 12px;
+        z-index: 30;
+        font-size: 13px;
+      }
+      .fl {
+        position: relative;
+      }
+      .fl select {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+      }
+      @media print {
+        body > *:not(#modal) {
+          display: none !important;
+        }
+        .ov {
+          position: static;
+          background: none;
+        }
+        .acts {
+          display: none;
+        }
+        .sheet {
+          background: #fff;
+          padding: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <main id="main"></main>
+      <nav></nav>
+    </div>
+    <div id="modal"></div>
+    <div id="dlg"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+      const I = {
+        home: "M3 11l9-8 9 8v10H4zM9 21v-7h6v7",
+        box: "M21 8l-9-5-9 5v8l9 5 9-5zM3 8l9 5 9-5M12 13v8",
+        cart: "M3 4h2l2.5 11h10L20 7H6M9 20h.01M17 20h.01",
+        chart: "M4 20V10M10 20V4M16 20v-8M22 20H2",
+        gear: "M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2",
+        plus: "M12 5v14M5 12h14",
+        edit: "M4 20h4L19 9l-4-4L4 16zM14 6l4 4",
+        trash: "M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13",
+        eye: "M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z",
+        eyeoff:
+          "M3 3l18 18M10 6a9 9 0 0 1 12 6 12 12 0 0 1-3 4M6 7a12 12 0 0 0-4 5s4 7 10 7a9 9 0 0 0 4-1",
+        arrow: "M5 12h14M13 6l6 6-6 6",
+        filter: "M3 5h18l-7 8v6l-4-2v-4z",
+        minus: "M5 12h14",
+        print: "M7 9V3h10v6M7 17H4v-6h16v6h-3M7 14h10v7H7z",
+        wa: "M4 20l1.5-4A8 8 0 1 1 8 18.5z",
+        search: "M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM21 21l-5-5",
+        back: "M19 12H5M11 6l-6 6 6 6",
+      };
+      const ic = (n, s = 20) =>
+        `<svg width=${s} height=${s} viewBox="0 0 24 24" fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round><path d="${I[n]}"/></svg>`;
+      const $ = (s) => document.querySelector(s),
+        esc = (s) =>
+          String(s ?? "").replace(
+            /[&<>"]/g,
+            (c) =>
+              ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])
+          );
+      const rp = (n) => "Rp" + Math.round(n || 0).toLocaleString("id-ID"),
+        sum = (a, f) => a.reduce((s, x) => s + f(x), 0);
+      const fdt = (t) =>
+        new Date(t).toLocaleString("id-ID", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      const K = "pos_v1",
+        def = () => ({
+          cats: ["Pempek", "Bento"],
+          prods: [],
+          orders: [],
+          seq: 0,
+          hide: false,
+          set: {
+            name: "Nama Toko",
+            icon: "🏪",
+            qris: "",
+            bank: "",
+            rek: "",
+            an: "",
+          },
+        });
+      let S;
+      try {
+        S = JSON.parse(localStorage.getItem(K)) || def();
+      } catch (e) {
+        S = def();
+      }
+      const save = () => {
+        try {
+          localStorage.setItem(K, JSON.stringify(S));
+        } catch (e) {
+          toast("Penyimpanan penuh, gunakan foto lebih kecil");
+        }
+      };
+      const fix = () => {
+        S.rs = S.rs || { min: 5, cat: "" };
+        S.rules = S.rules || [{ cat: S.rs.cat, min: S.rs.min }];
+        S.set.banks =
+          S.set.banks ||
+          (S.set.rek
+            ? [{ bank: S.set.bank, rek: S.set.rek, an: S.set.an }]
+            : []);
+      };
+      fix();
+      const applyTheme = () => {
+        const t = S.theme;
+        if (t == "light" || t == "dark")
+          document.documentElement.dataset.theme = t;
+        else delete document.documentElement.dataset.theme;
+      };
+      applyTheme();
+      const newD = () => ({
+        step: 1,
+        cart: {},
+        cust: "",
+        type: "Umum",
+        wa: "",
+        method: "Cash",
+        cash: "",
+      });
+      let V = "dash",
+        PF = { q: "", f: "" },
+        P = null,
+        D = newD(),
+        OF = { q: "", c: "" },
+        RG = 7,
+        R = null,
+        ASK = null;
+      const NAV = [
+        ["dash", "Dashboard", "home"],
+        ["prod", "Products", "box"],
+        ["order", "", "cart"],
+        ["sales", "Sales", "chart"],
+        ["set", "Settings", "gear"],
+      ];
+      $("nav").innerHTML = NAV.map(
+        (n) =>
+          `<button data-v="${n[0]}" class="${n[1] ? "" : "fab"}" aria-label="${
+            n[0]
+          }" onclick="go('${n[0]}')">${ic(n[2], n[1] ? 22 : 30)}${
+            n[1]
+          }</button>`
+      ).join("");
+      const go = (v) => {
+        V = v;
+        render();
+        scrollTo(0, 0);
+      };
+      function toast(t) {
+        const e = document.createElement("div");
+        e.className = "toast";
+        e.textContent = t;
+        document.body.appendChild(e);
+        setTimeout(() => e.remove(), 2000);
+      }
+      function render() {
+        $("#main").innerHTML = {
+          dash: vDash,
+          prod: vProd,
+          newp: vNewp,
+          order: vOrder,
+          sales: vSales,
+          set: vSet,
+        }[V]();
+        document
+          .querySelectorAll("nav button")
+          .forEach((b) =>
+            b.classList.toggle("on", b.dataset.v == (V == "newp" ? "prod" : V))
+          );
+        $("nav").style.display = V == "newp" ? "none" : "flex";
+      }
+      const head = (s, t, r = "") =>
+        `<div class=hd><div><small>${s}</small><h1>${t}</h1></div>${r}</div>`;
+      function ask(t, val, cb, conf) {
+        ASK = cb;
+        $(
+          "#dlg"
+        ).innerHTML = `<div class=ov style="align-items:center"><div class=dlg><h3>${t}</h3>${
+          conf ? "" : `<input id=di value="${esc(val)}">`
+        }<div class=row style="margin-top:14px"><button style="background:var(--bg)" onclick="dc()">Batal</button><button style="background:${
+          conf === 1 ? "var(--bad)" : "var(--pr)"
+        };color:#fff" onclick="dok()">${
+          conf === 1 ? "Hapus" : conf || "Simpan"
+        }</button></div></div></div>`;
+      }
+      const dc = () => ($("#dlg").innerHTML = "");
+      const dok = () => {
+        const i = $("#di"),
+          v = i ? i.value.trim() : true;
+        if (v === "") return;
+        dc();
+        ASK(v);
+      };
+      function readImg(f, max, cb) {
+        if (!f) return;
+        const r = new FileReader();
+        r.onload = () => {
+          const im = new Image();
+          im.onload = () => {
+            const k = Math.min(1, max / Math.max(im.width, im.height)),
+              c = document.createElement("canvas");
+            c.width = im.width * k;
+            c.height = im.height * k;
+            c.getContext("2d").drawImage(im, 0, 0, c.width, c.height);
+            cb(c.toDataURL("image/jpeg", 0.8));
+          };
+          im.src = r.result;
+        };
+        r.readAsDataURL(f);
+      }
+      const dayOf = (t) => new Date(t).toDateString(),
+        inRange = (o, d) =>
+          d == 1
+            ? dayOf(o.ts) == dayOf(Date.now())
+            : o.ts >= Date.now() - d * 864e5;
+      const thumb = (p) =>
+        p.photo ? `<img class=th src="${p.photo}">` : `<div class=th>📦</div>`;
+      /* ---------- DASHBOARD ---------- */
+      function hist(l) {
+        return l.length
+          ? l
+              .map(
+                (o) =>
+                  `<div class=li><div class=th>🧾</div><div class=sp><b>#${
+                    o.id
+                  } ${esc(o.cust || "Umum")}</b><small>${fdt(o.ts)} · ${
+                    o.method
+                  }</small></div><b style="font-size:13px">${rp(
+                    o.total
+                  )}</b><button class=ia onclick="editO(${o.id})">${ic(
+                    "edit",
+                    16
+                  )}</button><button class="ia d" onclick="delO(${o.id})">${ic(
+                    "trash",
+                    16
+                  )}</button></div>`
+              )
+              .join("")
+          : `<div class=empty>Belum ada transaksi</div>`;
+      }
+      function vDash() {
+        const t = S.orders.filter((o) => inRange(o, 1)),
+          rev = sum(t, (o) => o.total),
+          sold = sum(t, (o) => sum(o.items, (i) => i.qty)),
+          low = S.prods.filter((p) => p.stock <= 5).length;
+        const pop = Object.entries(
+          S.orders
+            .filter((o) => inRange(o, 7))
+            .reduce(
+              (m, o) => (
+                o.items.forEach((i) => (m[i.name] = (m[i.name] || 0) + i.qty)),
+                m
+              ),
+              {}
+            )
+        ).sort((a, b) => b[1] - a[1]);
+        return (
+          head(
+            new Date().toLocaleDateString("id-ID", {
+              weekday: "long",
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            }),
+            "Dashboard",
+            `<button class=ib onclick=iconPick()>${esc(S.set.icon)}</button>`
+          ) +
+          `<div class=wallet><div class=wt>${esc(S.set.name)}</div>${
+            S.set.addr
+              ? `<div style="font-size:11px;opacity:.75">${esc(
+                  S.set.addr
+                )}</div>`
+              : ""
+          }<div class=wl>Total Balance hari ini</div><div class=wb>${
+            S.hide ? "Rp ••••••" : rp(rev)
+          }</div><div class=wr><button class=vr onclick="RG=7;go('sales')">View Reports ${ic(
+            "arrow",
+            16
+          )}</button><button class=eye onclick="S.hide=!S.hide;save();render()">${ic(
+            S.hide ? "eyeoff" : "eye"
+          )}</button></div></div>
+<div class=g3><div class=st><small>Sales today</small><b>${rp(
+            rev
+          )}</b></div><div class=st><small>Item sold</small><b>${sold}</b></div><div class=st><small>Low stock</small><b style="color:${
+            low ? "var(--bad)" : "inherit"
+          }">${low}</b></div></div>
+<h2>Popular products <small style="color:var(--mu);font-weight:400">7 hari</small></h2><div class="card scroll">${
+            pop.length
+              ? pop
+                  .map(
+                    (p, i) =>
+                      `<div class=li><div class=th style="font-weight:800">${
+                        i + 1
+                      }</div><div class=sp><b>${esc(p[0])}</b></div><b>${
+                        p[1]
+                      } terjual</b></div>`
+                  )
+                  .join("")
+              : "<div class=empty>Belum ada penjualan</div>"
+          }</div>
+<h2>History order</h2><div class=card>${hist(
+            S.orders.slice(-10).reverse()
+          )}</div>`
+        );
+      }
+      /* ---------- PRODUCT ---------- */
+      function filtered() {
+        let l = S.prods.filter((p) =>
+            p.name.toLowerCase().includes(PF.q.toLowerCase())
+          ),
+          f = PF.f;
+        if (f == "hi") l.sort((a, b) => b.price - a.price);
+        if (f == "lo") l.sort((a, b) => a.price - b.price);
+        if (f == "low")
+          l = l
+            .filter((p) => p.stock > 0 && p.stock <= 5)
+            .sort((a, b) => a.stock - b.stock);
+        if (f == "out") l = l.filter((p) => p.stock == 0);
+        return l;
+      }
+      function plist() {
+        const l = filtered();
+        return l.length
+          ? l
+              .map(
+                (p) =>
+                  `<div class=li>${thumb(p)}<div class=sp><b>${esc(
+                    p.name
+                  )}</b><small>${esc(p.cat)} · Stok ${
+                    p.stock
+                  }</small><small style="display:block">${rp(
+                    p.price
+                  )} · Reseller ${rp(
+                    p.reseller
+                  )}</small></div><button class=ia onclick="editP('${
+                    p.id
+                  }')">${ic(
+                    "edit",
+                    16
+                  )}</button><button class="ia d" onclick="delP('${
+                    p.id
+                  }')">${ic("trash", 16)}</button></div>`
+              )
+              .join("")
+          : "<div class=empty>Produk tidak ditemukan</div>";
+      }
+      function vProd() {
+        return (
+          head(
+            `${S.prods.length} produk`,
+            "Product",
+            `<button class=ib onclick=addP()>${ic("plus", 22)}</button>`
+          ) +
+          `<div class=card>` +
+          (S.prods.length
+            ? `<div class=row><div class=sp><input placeholder="Cari nama produk" value="${esc(
+                PF.q
+              )}" oninput="PF.q=this.value;$('#pl').innerHTML=plist()"></div><div class="fl ib" style="box-shadow:none;border:1px solid var(--ln)">${ic(
+                "filter"
+              )}<select onchange="PF.f=this.value;$('#pl').innerHTML=plist()">${[
+                ["", "Semua"],
+                ["hi", "Harga tertinggi"],
+                ["lo", "Harga terendah"],
+                ["low", "Stok sedikit"],
+                ["out", "Stok habis"],
+              ]
+                .map(
+                  (o) =>
+                    `<option value="${o[0]}" ${
+                      PF.f == o[0] ? "selected" : ""
+                    }>${o[1]}</option>`
+                )
+                .join("")}</select></div></div><div id=pl>${plist()}</div>`
+            : `<div class=empty><b>No product yet</b>Tambahkan produk pertama Anda<button class=bt onclick=addP()>Add product</button></div>`) +
+          `</div>`
+        );
+      }
+      const addP = () => {
+        P = {
+          name: "",
+          cat: S.cats[0] || "",
+          photo: "",
+          price: "",
+          reseller: "",
+          stock: "",
+        };
+        go("newp");
+      };
+      const editP = (id) => {
+        P = { ...S.prods.find((p) => p.id == id) };
+        go("newp");
+      };
+      const delP = (id) =>
+        ask(
+          "Hapus produk ini?",
+          "",
+          () => {
+            S.prods = S.prods.filter((p) => p.id != id);
+            save();
+            render();
+          },
+          1
+        );
+      function vNewp() {
+        const c = P.cat;
+        return `<div class=hd><button class=ib onclick="go('prod')">${ic(
+          "back"
+        )}</button><h1 style="font-size:20px">${
+          P.id ? "Edit Product" : "New Product"
+        }</h1><span style="width:44px"></span></div><div class=card>
+<label>Category</label><div class=chips>${S.cats
+          .map(
+            (x) =>
+              `<button class="chip ${
+                x == c ? "on" : ""
+              }" onclick="P.cat=this.dataset.c;render()" data-c="${esc(
+                x
+              )}">${esc(x)}</button>`
+          )
+          .join("")}<button class=chip onclick=catAdd()>+ Tambah</button></div>
+${
+  c
+    ? `<div class=row><button class=ia onclick=catEdit()>${ic(
+        "edit",
+        16
+      )}</button><button class="ia d" onclick=catDel()>${ic(
+        "trash",
+        16
+      )}</button><small style="color:var(--mu)">Ubah / hapus kategori ${esc(
+        c
+      )}</small></div>`
+    : ""
+}
+<label>Nama product</label><input value="${esc(
+          P.name
+        )}" oninput="P.name=this.value">
+<label>Photo product</label><div class=row>${thumb(
+          P
+        )}<input type=file accept="image/*" onchange="readImg(this.files[0],300,d=>{P.photo=d;render()})"></div>
+<div class=row><div class=sp><label>Harga normal</label><input type=number inputmode=numeric value="${
+          P.price
+        }" oninput="P.price=+this.value"></div><div class=sp><label>Harga reseller</label><input type=number inputmode=numeric value="${
+          P.reseller
+        }" oninput="P.reseller=+this.value"></div></div>
+<label>Stock</label><input type=number inputmode=numeric value="${
+          P.stock
+        }" oninput="P.stock=+this.value"><button class=bt onclick=saveP()>Save product</button></div>`;
+      }
+      const catAdd = () =>
+        ask("Kategori baru", "", (v) => {
+          if (!S.cats.includes(v)) S.cats.push(v);
+          P.cat = v;
+          save();
+          render();
+        });
+      const catEdit = () =>
+        ask("Ubah kategori", P.cat, (v) => {
+          const o = P.cat;
+          S.cats = S.cats.map((x) => (x == o ? v : x));
+          S.prods.forEach((p) => {
+            if (p.cat == o) p.cat = v;
+          });
+          P.cat = v;
+          save();
+          render();
+        });
+      const catDel = () => {
+        if (S.prods.some((p) => p.cat == P.cat))
+          return toast("Kategori masih dipakai produk");
+        ask(
+          "Hapus kategori " + esc(P.cat) + "?",
+          "",
+          () => {
+            S.cats = S.cats.filter((x) => x != P.cat);
+            P.cat = S.cats[0] || "";
+            save();
+            render();
+          },
+          1
+        );
+      };
+      function saveP() {
+        if (!P.name.trim() || !(P.price >= 0) || P.price === "")
+          return toast("Isi nama dan harga");
+        if (!P.cat) return toast("Pilih kategori");
+        P.price = +P.price;
+        P.reseller = +P.reseller || P.price;
+        P.stock = +P.stock || 0;
+        if (P.id) S.prods = S.prods.map((p) => (p.id == P.id ? P : p));
+        else {
+          P.id = "p" + Date.now();
+          S.prods.push(P);
+        }
+        save();
+        go("prod");
+      }
+      /* ---------- ORDER ---------- */
+      const catQ = () => {
+        const m = {};
+        Object.entries(D.cart).forEach(([id, q]) => {
+          const p = S.prods.find((x) => x.id == id);
+          if (p) m[p.cat] = (m[p.cat] || 0) + q;
+        });
+        return m;
+      };
+      const cartItems = () => {
+        const cq = catQ();
+        return Object.entries(D.cart)
+          .map(([id, qty]) => {
+            const p = S.prods.find((x) => x.id == id);
+            if (!p) return null;
+            const rs =
+              D.type == "Reseller" ||
+              S.rules.some(
+                (r) => (!r.cat || r.cat == p.cat) && cq[p.cat] >= r.min
+              );
+            return {
+              pid: id,
+              name: p.name,
+              cat: p.cat,
+              qty,
+              price: rs ? p.reseller : p.price,
+              rs: rs && p.reseller < p.price,
+            };
+          })
+          .filter(Boolean);
+      };
+      const cTotal = () => sum(cartItems(), (i) => i.qty * i.price);
+      function setQ(id, d) {
+        const p = S.prods.find((x) => x.id == id),
+          q = Math.max(0, Math.min(p.stock, (D.cart[id] || 0) + d));
+        if (q) D.cart[id] = q;
+        else delete D.cart[id];
+        V == "order" && D.step == 1 ? drawOL() : render();
+      }
+      function olist() {
+        const l = S.prods.filter(
+          (p) =>
+            p.name.toLowerCase().includes(OF.q.toLowerCase()) &&
+            (!OF.c || p.cat == OF.c)
+        );
+        return l.length
+          ? l
+              .map((p) => {
+                const q = D.cart[p.id] || 0;
+                return `<div class=li>${thumb(p)}<div class=sp><b>${esc(
+                  p.name
+                )}</b><small>${esc(p.cat)} · Stok ${
+                  p.stock
+                }</small><small style="display:block;color:var(--pr)">${rp(
+                  p.price
+                )}</small></div>${
+                  p.stock == 0
+                    ? "<small>Habis</small>"
+                    : q
+                    ? `<div class=qt><button class=m onclick="setQ('${
+                        p.id
+                      }',-1)">${ic(
+                        "minus",
+                        14
+                      )}</button><span>${q}</span><button onclick="setQ('${
+                        p.id
+                      }',1)">${ic("plus", 14)}</button></div>`
+                    : `<button class=ia style="background:var(--pr);color:#fff" onclick="setQ('${
+                        p.id
+                      }',1)">${ic("plus", 16)}</button>`
+                }</div>`;
+              })
+              .join("")
+          : "<div class=empty>Belum ada produk</div>";
+      }
+      const drawOL = () => {
+        $("#ol").innerHTML = olist();
+        const n = sum(Object.values(D.cart), (x) => x);
+        $("#cb").disabled = !n;
+        $("#cb").textContent = n
+          ? `Continue to Quantity (${n})`
+          : "Continue to Quantity";
+      };
+      const stepBar = () =>
+        `<div class=steps>${["Produk", "Quantity", "Payment"]
+          .map(
+            (s, i) =>
+              `<div class="${D.step >= i + 1 ? "on" : ""}">${i + 1}. ${s}</div>`
+          )
+          .join("")}</div>`;
+      function vOrder() {
+        const h = head("Buat pesanan", "Order");
+        if (D.step == 1)
+          return (
+            h +
+            stepBar() +
+            `<div class=card><div class=row><div class=sp><input placeholder="Cari produk" value="${esc(
+              OF.q
+            )}" oninput="OF.q=this.value;drawOL()"></div><div style="width:42%"><select onchange="OF.c=this.value;drawOL()"><option value="">Semua kategori</option>${S.cats
+              .map(
+                (c) =>
+                  `<option ${OF.c == c ? "selected" : ""}>${esc(c)}</option>`
+              )
+              .join(
+                ""
+              )}</select></div></div><div id=ol>${olist()}</div></div><button id=cb class=bt onclick="D.step=2;render()" ${
+              Object.keys(D.cart).length ? "" : "disabled"
+            }>Continue to Quantity</button>`
+          );
+        const it = cartItems();
+        if (D.step == 2)
+          return (
+            h +
+            stepBar() +
+            `<div class=card><b>Customer info</b><label>Customer name</label><input value="${esc(
+              D.cust
+            )}" oninput="D.cust=this.value"><label>Jenis customer</label><div class=seg>${[
+              "Umum",
+              "Reseller",
+            ]
+              .map(
+                (t) =>
+                  `<button class="${
+                    D.type == t ? "on" : ""
+                  }" onclick="D.type='${t}';render()">${t}</button>`
+              )
+              .join(
+                ""
+              )}</div><label>WhatsApp number</label><input type=tel inputmode=tel placeholder="08xxxxxxxxxx" value="${esc(
+              D.wa
+            )}" oninput="D.wa=this.value"></div>
+<div class=card style="margin-top:14px"><div class=row><b class=sp>Items</b><button style="color:var(--bad);font-size:13px" onclick="D.cart={};D.step=1;render()">Clear cart</button></div>${
+              it
+                .map(
+                  (i) =>
+                    `<div class=li><div class=sp><b>${esc(
+                      i.name
+                    )}</b><small>${rp(i.price)} ${
+                      i.rs ? "<span class=tg>Harga reseller</span>" : ""
+                    }</small></div><div class=qt><button class=m onclick="setQ('${
+                      i.pid
+                    }',-1)">${ic("minus", 14)}</button><span>${
+                      i.qty
+                    }</span><button onclick="setQ('${i.pid}',1)">${ic(
+                      "plus",
+                      14
+                    )}</button></div></div>`
+                )
+                .join("") || "<div class=empty>Keranjang kosong</div>"
+            }<div class=row style="margin-top:8px"><b class=sp>Subtotal</b><b>${rp(
+              cTotal()
+            )}</b></div><small style="color:var(--mu)">Harga reseller otomatis jika: ${
+              S.rules
+                .map((r) => r.min + "+ item " + esc(r.cat || "per kategori"))
+                .join(", ") || "tidak ada aturan"
+            }.</small></div>
+<button class=bt ${
+              it.length ? "" : "disabled"
+            } onclick="D.step=3;render()">Continue to Payment</button><button class=bt2 onclick="D.step=1;render()">Kembali</button>`
+          );
+        const t = cTotal(),
+          s = S.set,
+          ch = Math.max(0, (+D.cash || 0) - t);
+        return (
+          h +
+          stepBar() +
+          `<div class=card><b>Payment method</b><div class=seg style="margin-top:8px">${[
+            "Cash",
+            "Qris",
+            "Transfer",
+          ]
+            .map(
+              (m) =>
+                `<button class="${
+                  D.method == m ? "on" : ""
+                }" onclick="D.method='${m}';render()">${m}</button>`
+            )
+            .join("")}</div>
+${
+  D.method == "Cash"
+    ? `<label>Cash received</label><input type=number inputmode=numeric value="${D.cash}" oninput="D.cash=this.value;$('#chg').textContent=rp(Math.max(0,(+this.value||0)-${t}))">`
+    : ""
+}
+${
+  D.method == "Qris"
+    ? s.qris
+      ? `<img src="${s.qris}" style="width:100%;border-radius:12px;margin-top:12px">`
+      : "<div class=empty>Foto QRIS belum diatur di Setting</div>"
+    : ""
+}
+${
+  D.method == "Transfer"
+    ? s.banks.length
+      ? s.banks
+          .map(
+            (b) =>
+              `<div class=st style="margin-top:12px"><small>${esc(
+                b.bank
+              )}</small><b>${esc(b.rek)}</b><small>a.n. ${esc(
+                b.an
+              )}</small></div>`
+          )
+          .join("")
+      : "<div class=empty>Rekening belum diatur di Setting</div>"
+    : ""
+}</div>
+<div class=card style="margin-top:14px"><div class="row"><span class=sp>Total order</span><b>${rp(
+            t
+          )}</b></div>${
+            D.method == "Cash"
+              ? `<div class=row style="margin-top:6px"><span class=sp>Cash received</span><b>${rp(
+                  +D.cash || 0
+                )}</b></div><div class=row style="margin-top:6px"><span class=sp>Change</span><b id=chg>${rp(
+                  ch
+                )}</b></div>`
+              : ""
+          }</div>
+<button class=bt onclick=toReceipt()>Payment</button><button class=bt2 onclick="D.step=2;render()">Kembali</button>`
+        );
+      }
+      function toReceipt() {
+        const t = cTotal();
+        if (D.method == "Cash" && (+D.cash || 0) < t)
+          return toast("Uang diterima kurang dari total");
+        openR(
+          {
+            id: S.seq + 1,
+            ts: Date.now(),
+            cust: D.cust,
+            type: D.type,
+            wa: D.wa,
+            method: D.method,
+            cash: +D.cash || 0,
+            items: cartItems(),
+          },
+          "new"
+        );
+      }
+      /* ---------- RECEIPT ---------- */
+      const rT = (o) => sum(o.items, (i) => i.qty * i.price);
+      function openR(o, mode) {
+        R = { o: JSON.parse(JSON.stringify(o)), mode, done: false };
+        drawR();
+      }
+      function drawR() {
+        const o = R.o,
+          s = S.set,
+          ed = R.mode == "edit" && !R.done;
+        o.total = rT(o);
+        o.change =
+          o.method == "Cash" ? Math.max(0, (o.cash || 0) - o.total) : 0;
+        $(
+          "#modal"
+        ).innerHTML = `<div class=ov><div class=sheet><div class=paper><div class=c><b style="font-size:16px">${esc(
+          s.icon
+        )} ${esc(s.name)}</b>${
+          s.addr ? "<br>" + esc(s.addr) : ""
+        }<br>Struk Pembayaran<br>${fdt(o.ts)} · #${
+          o.id
+        }</div><hr>Pelanggan: ${esc(o.cust || "-")} (${o.type})<hr>
+${o.items
+  .map(
+    (i, n) =>
+      `<div class=rw><span>${esc(i.name)}<br>${
+        ed
+          ? `<span class=qt><button class=m onclick="rq(${n},-1)">-</button><span>${i.qty}</span><button onclick="rq(${n},1)">+</button></span>`
+          : i.qty + " x " + rp(i.price)
+      }</span><span>${rp(i.qty * i.price)}</span></div>`
+  )
+  .join("")}<hr>
+<div class="rw"><b>TOTAL</b><b>${rp(
+          o.total
+        )}</b></div><div class=rw><span>Metode</span><span>${
+          o.method
+        }</span></div>${
+          o.method == "Cash"
+            ? `<div class=rw><span>Tunai</span><span>${rp(
+                o.cash
+              )}</span></div><div class=rw><span>Kembali</span><span>${rp(
+                o.change
+              )}</span></div>`
+            : ""
+        }
+${
+  o.method == "Transfer" && s.banks.length
+    ? `<hr>Transfer:${s.banks
+        .map((b) => `<br>${esc(b.bank)} ${esc(b.rek)}<br>a.n. ${esc(b.an)}`)
+        .join("<br>")}`
+    : ""
+}${
+          o.method == "Qris" && s.qris
+            ? `<hr><img src="${s.qris}" style="width:60%;display:block;margin:auto">`
+            : ""
+        }<hr><div class=c>Terima kasih</div></div>
+${R.done ? "<div class=ok>✓ Pesanan berhasil</div>" : ""}<div class=acts>${
+          R.done
+            ? "<button class=bt onclick=rDone()>Selesai</button>"
+            : `<button class=bt onclick=rPay()>Payment</button><button class=bt2 onclick=rCancel()>Cancel</button>`
+        }<button class=bt2 onclick=rPDF()>${ic(
+          "print",
+          16
+        )} Cetak Struk / Simpan PDF</button><button class=bt2 onclick=rWA()>${ic(
+          "wa",
+          16
+        )} Share PDF via WhatsApp</button></div></div></div>`;
+      }
+      function rq(n, d) {
+        const i = R.o.items[n];
+        i.qty += d;
+        if (i.qty < 1) R.o.items.splice(n, 1);
+        drawR();
+      }
+      function rPay() {
+        const o = R.o;
+        if (!o.items.length) return toast("Tidak ada item");
+        if (R.mode == "new") {
+          S.seq = o.id;
+          o.items.forEach((i) => {
+            const p = S.prods.find((x) => x.id == i.pid);
+            if (p) p.stock -= i.qty;
+          });
+          S.orders.push(o);
+        } else {
+          const old = S.orders.find((x) => x.id == o.id);
+          old.items.forEach((i) => {
+            const p = S.prods.find((x) => x.id == i.pid);
+            if (p) p.stock += i.qty;
+          });
+          o.items.forEach((i) => {
+            const p = S.prods.find((x) => x.id == i.pid);
+            if (p) p.stock -= i.qty;
+          });
+          S.orders = S.orders.map((x) => (x.id == o.id ? o : x));
+        }
+        save();
+        R.done = true;
+        drawR();
+      }
+      const rCancel = () => {
+        $("#modal").innerHTML = "";
+        go(R.mode == "new" ? "order" : "dash");
+      };
+      const rDone = () => {
+        $("#modal").innerHTML = "";
+        if (R.mode == "new") D = newD();
+        go("dash");
+      };
+      function rTxt() {
+        const o = R.o,
+          s = S.set;
+        let n = String(o.wa || "").replace(/\D/g, "");
+        if (n.startsWith("0")) n = "62" + n.slice(1);
+        const t =
+          `*${s.name}*\n${s.addr ? s.addr + "\n" : ""}Struk #${o.id} · ${fdt(
+            o.ts
+          )}\nPelanggan: ${o.cust || "-"}\n\n` +
+          o.items
+            .map((i) => `${i.name} x${i.qty} = ${rp(i.qty * i.price)}`)
+            .join("\n") +
+          `\n\n*Total: ${rp(o.total)}*\nBayar: ${o.method}` +
+          (o.method == "Cash"
+            ? `\nTunai: ${rp(o.cash)}\nKembali: ${rp(o.change)}`
+            : "") +
+          (o.method == "Transfer" && s.banks.length
+            ? "\n\nTransfer ke:" +
+              s.banks
+                .map((b) => `\n${b.bank} ${b.rek}\na.n. ${b.an}`)
+                .join("\n")
+            : "") +
+          (o.method == "Qris" ? "\n\nBayar via QRIS (scan QR dari toko)" : "") +
+          "\n\nTerima kasih 🙏";
+        return { n, t };
+      }
+      function mkPDF() {
+        const J = window.jspdf;
+        if (!J) return null;
+        const o = R.o,
+          s = S.set;
+        const rows = [];
+        o.items.forEach((i) => {
+          rows.push([i.name, ""]);
+          rows.push(["  " + i.qty + " x " + rp(i.price), rp(i.qty * i.price)]);
+        });
+        const ex = [
+          ["TOTAL", rp(o.total)],
+          ["Metode", o.method],
+        ];
+        if (o.method == "Cash")
+          ex.push(["Tunai", rp(o.cash)], ["Kembali", rp(o.change)]);
+        const tr =
+            o.method == "Transfer"
+              ? s.banks.flatMap((b) => [b.bank + " " + b.rek, "a.n. " + b.an])
+              : [],
+          q = o.method == "Qris" && s.qris;
+        const d = new J.jsPDF({
+          unit: "mm",
+          format: [
+            80,
+            60 +
+              (rows.length + ex.length) * 5 +
+              (tr.length * 5 + 3) +
+              (q ? 48 : 0),
+          ],
+        });
+        let y = 10;
+        const c = (t, b) => {
+          d.setFont("courier", b ? "bold" : "normal");
+          d.setFontSize(b ? 11 : 8);
+          d.text(String(t), 40, y, { align: "center" });
+          y += b ? 6 : 4.5;
+        };
+        const r = (a, b, bd) => {
+          d.setFont("courier", bd ? "bold" : "normal");
+          d.setFontSize(8);
+          d.text(String(a), 5, y);
+          if (b) d.text(String(b), 75, y, { align: "right" });
+          y += 5;
+        };
+        const ln = () => {
+          d.setLineDashPattern([1, 1], 0);
+          d.line(5, y - 2, 75, y - 2);
+          y += 3;
+        };
+        c(s.name, 1);
+        if (s.addr) c(s.addr);
+        c("Struk Pembayaran");
+        c(fdt(o.ts) + " #" + o.id);
+        c("Pelanggan: " + (o.cust || "-"));
+        ln();
+        rows.forEach((x) => r(x[0], x[1]));
+        ln();
+        ex.forEach((x, i) => r(x[0], x[1], !i));
+        if (tr.length) {
+          ln();
+          tr.forEach((x) => r(x));
+        }
+        if (q) {
+          ln();
+          d.addImage(s.qris, "JPEG", 20, y, 40, 40);
+          y += 44;
+        }
+        ln();
+        c("Terima kasih");
+        return d.output("blob");
+      }
+      async function rPDF() {
+        const b = mkPDF();
+        if (!b) return toast("PDF belum siap, coba lagi");
+        let dl = null;
+        try {
+          dl = await claude.use("downloads");
+        } catch (e) {}
+        if (!dl) return toast("Simpan PDF tidak tersedia di sini");
+        try {
+          await dl.save({ filename: "struk-" + R.o.id + ".pdf", data: b });
+          toast("Struk disimpan");
+        } catch (e) {
+          if (e.code != "declined") toast("Gagal menyimpan PDF");
+        }
+      }
+      async function rWA() {
+        const b = mkPDF(),
+          { n, t } = rTxt();
+        if (b) {
+          const f = new File([b], "struk-" + R.o.id + ".pdf", {
+            type: "application/pdf",
+          });
+          try {
+            if (navigator.canShare && navigator.canShare({ files: [f] })) {
+              await navigator.share({ files: [f], text: t });
+              return;
+            }
+          } catch (e) {
+            if (e.name == "AbortError") return;
+          }
+          await rPDF();
+          toast("Lampirkan PDF struk di chat WhatsApp");
+        }
+        window.open(
+          `https://wa.me/${n}?text=${encodeURIComponent(t)}`,
+          "_blank"
+        );
+      }
+      const editO = (id) =>
+        openR(
+          S.orders.find((o) => o.id == id),
+          "edit"
+        );
+      const delO = (id) =>
+        ask(
+          "Hapus transaksi #" + id + "?",
+          "",
+          () => {
+            const o = S.orders.find((x) => x.id == id);
+            o.items.forEach((i) => {
+              const p = S.prods.find((x) => x.id == i.pid);
+              if (p) p.stock += i.qty;
+            });
+            S.orders = S.orders.filter((x) => x.id != id);
+            save();
+            render();
+          },
+          1
+        );
+      /* ---------- SALES ---------- */
+      function vSales() {
+        const l = S.orders.filter((o) => inRange(o, RG)),
+          rev = sum(l, (o) => o.total),
+          n = l.length;
+        return (
+          head("Laporan penjualan", "Sales") +
+          `<div class=seg>${[
+            [1, "Today"],
+            [7, "7 days"],
+            [30, "30 days"],
+          ]
+            .map(
+              (r) =>
+                `<button class="${RG == r[0] ? "on" : ""}" onclick="RG=${
+                  r[0]
+                };render()">${r[1]}</button>`
+            )
+            .join("")}</div>
+<div class=g2><div class=st><small>Revenue</small><b>${rp(
+            rev
+          )}</b></div><div class=st><small>Transaction</small><b>${n}</b></div><div class=st><small>Item sold</small><b>${sum(
+            l,
+            (o) => sum(o.items, (i) => i.qty)
+          )}</b></div><div class=st><small>Average sale</small><b>${rp(
+            n ? rev / n : 0
+          )}</b></div></div>
+<h2>History order</h2><div class=card>${hist(l.slice().reverse())}</div>`
+        );
+      }
+      /* ---------- SETTING ---------- */
+      function vSet() {
+        const s = S.set,
+          f = (k, l, ph = "") =>
+            `<label>${l}</label><input value="${esc(
+              s[k]
+            )}" placeholder="${ph}" oninput="S.set.${k}=this.value;save()">`;
+        return (
+          head("Pengaturan", "Setting") +
+          `<div class=card><b>Toko</b>${f("name", "Nama toko")}${f(
+            "addr",
+            "Alamat toko",
+            "Jl. ..."
+          )}<label>Ikon toko</label><button class=bt2 style="margin:0" onclick=iconPick()>${esc(
+            s.icon
+          )} Ubah ikon</button></div>
+<div class=card style="margin-top:14px"><b>Foto QRIS</b>${
+            s.qris
+              ? `<img src="${s.qris}" style="width:60%;display:block;margin:12px auto;border-radius:12px">`
+              : ""
+          }<input type=file accept="image/*" style="margin-top:10px" onchange="readImg(this.files[0],700,d=>{S.set.qris=d;save();render()})">${
+            s.qris
+              ? `<button class=bt2 onclick="S.set.qris='';save();render()">Hapus QRIS</button>`
+              : ""
+          }</div>
+<div class=card style="margin-top:14px"><div class=row><b class=sp>Rekening transfer</b><button class=ia style="background:var(--pr);color:#fff" onclick=addBank()>${ic(
+            "plus",
+            16
+          )}</button></div><div class=scroll style="max-height:320px">${
+            s.banks
+              .map(
+                (b, i) =>
+                  `<div class=li style="align-items:flex-start"><div class=sp><input placeholder="Nama bank" value="${esc(
+                    b.bank
+                  )}" oninput="S.set.banks[${i}].bank=this.value;save()"><input style="margin-top:6px" placeholder="Nomor rekening" inputmode=numeric value="${esc(
+                    b.rek
+                  )}" oninput="S.set.banks[${i}].rek=this.value;save()"><input style="margin-top:6px" placeholder="Atas nama" value="${esc(
+                    b.an
+                  )}" oninput="S.set.banks[${i}].an=this.value;save()"></div><button class="ia d" onclick="delBank(${i})">${ic(
+                    "trash",
+                    16
+                  )}</button></div>`
+              )
+              .join("") || "<div class=empty>Belum ada rekening</div>"
+          }</div><small style="color:var(--mu);display:block;margin-top:10px">Tampil di menu pembayaran dan pesan WhatsApp.</small></div>
+<div class=card style="margin-top:14px"><b>Tema</b><div class=seg style="margin-top:8px">${[
+            ["light", "Light"],
+            ["dark", "Dark"],
+            ["", "Auto"],
+          ]
+            .map(
+              (t) =>
+                `<button class="${
+                  (S.theme || "") == t[0] ? "on" : ""
+                }" onclick="S.theme='${t[0]}';save();applyTheme();render()">${
+                  t[1]
+                }</button>`
+            )
+            .join("")}</div></div>
+<div class=card style="margin-top:14px"><div class=row><b class=sp>Harga reseller</b><button class=ia style="background:var(--pr);color:#fff" onclick=addRule()>${ic(
+            "plus",
+            16
+          )}</button></div><div class=scroll style="max-height:260px">${
+            S.rules
+              .map(
+                (r, i) =>
+                  `<div class=li><div style="width:90px"><label style="margin-top:0">Min. item</label><input type=number inputmode=numeric value="${
+                    r.min
+                  }" oninput="S.rules[${i}].min=Math.max(1,+this.value||1);save()"></div><div class=sp><label style="margin-top:0">Kategori</label><select onchange="S.rules[${i}].cat=this.value;save()"><option value="">Semua kategori</option>${S.cats
+                    .map(
+                      (c) =>
+                        `<option ${r.cat == c ? "selected" : ""}>${esc(
+                          c
+                        )}</option>`
+                    )
+                    .join(
+                      ""
+                    )}</select></div><button class="ia d" onclick="delRule(${i})">${ic(
+                    "trash",
+                    16
+                  )}</button></div>`
+              )
+              .join("") || "<div class=empty>Belum ada aturan</div>"
+          }</div><small style="color:var(--mu);display:block;margin-top:10px">Customer tipe Reseller selalu memakai harga reseller.</small></div>
+<div class=card style="margin-top:14px"><b>Backup database</b><small style="color:var(--mu);display:block;margin:6px 0">${
+            bakTs()
+              ? "Backup lokal terakhir: " + fdt(bakTs())
+              : "Belum ada backup lokal"
+          }</small><button class=bt onclick=doBackup()>Simpan backup</button>${
+            bakTs()
+              ? `<button class=bt2 onclick=restoreLocal()>Restore backup lokal</button>`
+              : ""
+          }<label>Restore dari file backup (.json)</label><input type=file accept=".json,application/json" onchange="restoreFile(this.files[0])"></div>`
+        );
+      }
+      const addBank = () => {
+          S.set.banks.push({ bank: "", rek: "", an: "" });
+          save();
+          render();
+        },
+        delBank = (i) => {
+          S.set.banks.splice(i, 1);
+          save();
+          render();
+        },
+        addRule = () => {
+          S.rules.push({ cat: "", min: 5 });
+          save();
+          render();
+        },
+        delRule = (i) => {
+          S.rules.splice(i, 1);
+          save();
+          render();
+        };
+      const bakTs = () => {
+        try {
+          return JSON.parse(localStorage.getItem("pos_bak")).ts;
+        } catch (e) {
+          return 0;
+        }
+      };
+      async function doBackup() {
+        const d = JSON.stringify({ ts: Date.now(), data: S });
+        let ok = 1;
+        try {
+          localStorage.setItem("pos_bak", d);
+        } catch (e) {
+          ok = 0;
+          toast("Backup lokal gagal (penyimpanan penuh)");
+        }
+        let dl = null;
+        try {
+          dl = await claude.use("downloads");
+        } catch (e) {}
+        if (dl) {
+          try {
+            await dl.save({
+              filename:
+                "backup-pos-" + new Date().toISOString().slice(0, 10) + ".json",
+              data: d,
+            });
+            toast("Backup disimpan");
+          } catch (e) {
+            if (e.code != "declined") toast("Gagal menyimpan file");
+          }
+        } else if (ok) toast("Backup lokal tersimpan");
+        render();
+      }
+      function applyBak(d) {
+        if (
+          !d ||
+          !d.data ||
+          !Array.isArray(d.data.prods) ||
+          !Array.isArray(d.data.orders)
+        )
+          return toast("File backup tidak valid");
+        ask(
+          "Restore backup? Data saat ini akan diganti.",
+          "",
+          () => {
+            S = { ...def(), ...d.data };
+            fix();
+            save();
+            applyTheme();
+            toast("Database dipulihkan");
+            render();
+          },
+          "Restore"
+        );
+      }
+      const restoreLocal = () => {
+        try {
+          applyBak(JSON.parse(localStorage.getItem("pos_bak")));
+        } catch (e) {
+          toast("Backup lokal tidak ada");
+        }
+      };
+      function restoreFile(f) {
+        if (!f) return;
+        const r = new FileReader();
+        r.onload = () => {
+          try {
+            applyBak(JSON.parse(r.result));
+          } catch (e) {
+            toast("File backup tidak valid");
+          }
+        };
+        r.readAsText(f);
+      }
+      function iconPick() {
+        $(
+          "#dlg"
+        ).innerHTML = `<div class=ov style="align-items:center" onclick="if(event.target==this)dc()"><div class=dlg><h3>Pilih ikon toko</h3><div class=chips style="font-size:26px">${[
+          "🏪",
+          "🍱",
+          "🐟",
+          "🥘",
+          "🍜",
+          "🧁",
+          "☕",
+          "🛍️",
+          "🍗",
+          "🥡",
+          "🏬",
+          "💼",
+        ]
+          .map(
+            (e) =>
+              `<button class=ib onclick="S.set.icon='${e}';save();dc();render()">${e}</button>`
+          )
+          .join("")}</div></div></div>`;
+      }
+      render();
+    </script>
+  </body>
+</html>
